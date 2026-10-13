@@ -97,10 +97,14 @@
         <!-- Add Expense -->
         <section class="rounded-2xl border border-slate-800 bg-slate-900 p-4">
           <h2 class="text-lg font-semibold mb-3">Thêm khoản chi</h2>
-          <form class="space-y-3">
+          <form 
+          method="post"
+          action="{{ url_for('add') }}"
+          class="space-y-3">
             <label class="block text-sm">
               <span class="mb-1 block text-slate-300">Mô tả</span>
               <input
+                name="description"
                 placeholder="VD: Đi chợ"
                 class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
               />
@@ -109,6 +113,7 @@
               <label class="block text-sm">
                 <span class="mb-1 block text-slate-300">Số tiền</span>
                 <input
+                  name="amount"
                   type="number"
                   step="1000"
                   min="1000"
@@ -119,6 +124,7 @@
               <label class="block text-sm">
                 <span class="mb-1 block text-slate-300">Ngày</span>
                 <input
+                  name="date"
                   type="date"
                   class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
                 />
