@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="vi" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Tổng quan · Quản lý chi tiêu</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: { extend: { colors: { brand: { DEFAULT: "#38bdf8" } } } },
+      };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+
+  <body class="h-full bg-slate-900 text-slate-100">
+    <main class="mx-auto max-w-6xl px-4 py-8">
+      <h1 class="text-3xl font-semibold mb-2">Tổng quan</h1>
+      <p class="text-slate-400 mb-6">
+        Theo dõi chi tiêu, lọc theo ngày/danh mục và xem biểu đồ ngay lập tức.
+      </p>
+
+      <!-- Filters + Add form -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <!-- Filters -->
+        <section
+          class="lg:col-span-2 rounded-2xl border border-slate-800 bg-slate-900 p-4"
+        >
+          <h2 class="text-lg font-semibold mb-3">Bộ lọc</h2>
+          <form
+            class="grid grid-cols-1 md:grid-cols-[1fr_1fr_2fr_auto] gap-3 items-end"
+          >
+            <label class="text-sm">
+              <span class="block mb-1 text-slate-300">Từ ngày</span>
+              <input
+                type="date"
+                class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
+              />
+            </label>
+            <label class="text-sm">
+              <span class="block mb-1 text-slate-300">Đến ngày</span>
+              <input
+                type="date"
+                class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
+              />
+            </label>
+            <label class="text-sm">
+              <span class="block mb-1 text-slate-300">Danh mục</span>
+              <select
+                class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
+              >
+                <option value="">Tất cả</option>
+                <option value="Food">Ăn uống</option>
+                <option value="Transport">Di chuyển</option>
+                <option value="Utilities">Điện nước</option>
+              </select>
+            </label>
+            <div class="flex gap-2">
+              <button
+                class="whitespace-nowrap rounded-xl bg-brand/20 hover:bg-brand/30 text-brand px-4 py-2 border border-brand/30"
+                type="submit"
+              >
+                Áp dụng
+              </button>
+              <a
+                class="whitespace-nowrap rounded-xl bg-slate-800 hover:bg-slate-700 px-4 py-2 border border-slate-700"
+                href="#"
+                >Đặt lại</a
+              >
+            </div>
+          </form>
+
+          <!-- Total -->
+          <div class="mt-4 text-sm text-slate-300">
+            <span class="mr-2">Tổng cộng:</span>
+            <span
+              class="inline-block rounded-xl border border-slate-700 bg-slate-800 px-3 py-1 font-semibold"
+            >
+              0.000 VND
+            </span>
+          </div>
+
+          <!-- Export link -->
+          <div class="mt-3">
+            <a
+              class="text-xs text-slate-400 hover:text-brand underline"
+              href="#"
+            >
+              Xuất CSV (theo bộ lọc hiện tại)
+            </a>
+          </div>
+        </section>
+
+        <!-- Add Expense -->
+        <section class="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+          <h2 class="text-lg font-semibold mb-3">Thêm khoản chi</h2>
+          <form class="space-y-3">
+            <label class="block text-sm">
+              <span class="mb-1 block text-slate-300">Mô tả</span>
+              <input
+                placeholder="VD: Đi chợ"
+                class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
+              />
+            </label>
+            <div class="grid grid-cols-2 gap-3">
+              <label class="block text-sm">
+                <span class="mb-1 block text-slate-300">Số tiền</span>
+                <input
+                  type="number"
+                  step="1000"
+                  min="1000"
+                  placeholder="25.00"
+                  class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
+                />
+              </label>
+              <label class="block text-sm">
+                <span class="mb-1 block text-slate-300">Ngày</span>
+                <input
+                  type="date"
+                  class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
+                />
+              </label>
+            </div>
+            <label class="block text-sm">
+              <span class="mb-1 block text-slate-300">Danh mục</span>
+              <select
+                class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
+              >
+                <option value="Food">Ăn uống</option>
+                <option value="Transport">Di chuyển</option>
+                <option value="Rent">Tiền nhà</option>
+                <option value="Utilities">Điện nước</option>
+              </select>
+            </label>
+            <button
+              class="w-full rounded-xl bg-brand/20 hover:bg-brand/30 text-brand px-4 py-2 border border-brand/30"
+              type="submit"
+            >
+              Thêm khoản chi
+            </button>
+          </form>
+        </section>
+      </div>
+
+      <!-- Total (global) -->
+      <div class="mb-3 mt-6">
+        <span class="text-sm text-slate-300 mr-2">Tổng cộng:</span>
+        <span
+          class="inline-block rounded-xl border border-slate-700 bg-slate-800 px-3 py-1 font-semibold"
+        >
+          0.000 VND
+        </span>
+      </div>
+
+      <!-- Expenses table -->
+      <section class="rounded-2xl border border-slate-800 bg-slate-900">
+        <div class="px-4 py-3 border-b border-slate-800">
+          <h2 class="text-lg font-semibold">Danh sách chi tiêu</h2>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="min-w-full text-sm">
+            <thead class="text-slate-300 bg-slate-800/50">
+              <tr>
+                <th class="text-left px-4 py-3">Ngày</th>
+                <th class="text-left px-4 py-3">Mô tả</th>
+                <th class="text-left px-4 py-3">Danh mục</th>
+                <th class="text-right px-4 py-3">Số tiền</th>
+                <th class="px-4 py-3"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-t border-slate-800 hover:bg-slate-800/30">
+                <td class="px-4 py-2">2025-09-25</td>
+                <td class="px-4 py-2">Đi chợ</td>
+                <td class="px-4 py-2">Ăn uống</td>
+                <td class="px-4 py-2 text-right">25.000 VND</td>
+                <td class="px-4 py-2 text-right">
+                  <button
+                    class="text-rose-300 hover:text-rose-200 text-xs border border-rose-400/30 px-3 py-1 rounded-lg"
+                  >
+                    Xóa
+                  </button>
+                </td>
+              </tr>
+              <tr>
+                <td colspan="5" class="px-4 py-6 text-center text-slate-400">
+                  Chưa có khoản chi nào — hãy thêm khoản đầu tiên ở phía trên.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Charts -->
+      <section class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+          <h3 class="font-semibold mb-2">Theo danh mục</h3>
+          <canvas id="catChart" height="140"></canvas>
+        </div>
+        <div class="rounded-2xl border border-slate-800 bg-slate-900 p-4">
+          <h3 class="font-semibold mb-2">Chi tiêu theo thời gian</h3>
+          <canvas id="dayChart" height="140"></canvas>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
