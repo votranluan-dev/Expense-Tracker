@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, flash, redirect
+from flask import Flask, Response, render_template, request, url_for, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
 
 from datetime import date, datetime
@@ -183,6 +183,48 @@ def delete(id):
 
     return redirect(url_for("index"))
 
+
+@app.route("/export.csv")
+def export_csv():
+    # 1. Read query str
+    start_str = (request.args.get("start") or "").strip() 
+    end_str = (request.args.get("end") or "").strip()
+    selected_category = (request.args.get("category") or "").strip()
+
+    # 2. Pasing
+    start_date = parse_date_or_none(start_str)
+    end_date = parse_date_or_none(end_str)
+
+    q = Expenses.query
+    
+    if start_date:
+        q = q.filter(Expenses.date >= start_date)
+    if end_date:
+        q = q.filter(Expenses.date <= end_date)
+    if selected_category:
+        q = q.filter(Expenses.category == selected_category)
+
+    expenses = q.order_by(Expenses.date.desc(), Expenses.id).all()
+
+    lines = ["Ngày, Mô tả, Danh mục, Số tiền"]
+
+    for e in expenses:
+        lines.append(f"{e.date}, {e.description}, {CATEGORY_LABELS.get(e.category, e.category)}, {e.amount}")
+
+    csv_data = "\n".join(lines)
+
+    fname_start = start_str or "all"
+    fname_end = end_str or "all"
+    filename = f"expenses_{fname_start}_{fname_end}.csv"
+
+    return Response (
+        csv_data,
+        mimetype="text/csv",
+        headers={
+            "Content-Disposition": f"attachment; filename={filename}",
+            "COntent-Type": "text/csv; charset=utf-8"
+        }
+    )
 
 
 if __name__ == "__main__":
