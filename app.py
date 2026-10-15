@@ -20,6 +20,14 @@ CATEGORY_LABELS = {
     "Health": "Sức khỏe",
 }
 
+def parse_date_or_none(s: str):
+    if not s:
+        return None 
+    try:
+        return datetime.strptime(s, "%Y-%m-%d").date()
+    except ValueError:  
+        return None
+
 
 @app.context_processor
 def inject_category_labels():
@@ -42,19 +50,50 @@ def vnd(value):
     return f"{value or 0:,.0f}".replace(",", ".")
 
 
+
 # Return home page
 @app.get("/")
 def index():
-    expenses = Expenses.query.order_by(Expenses.date.desc(), Expenses.id.desc()).all()
+    # Filter expenses 
+    # 1. Read query str
+    start_str = (request.args.get("start") or "").strip() 
+    end_str = (request.args.get("end") or "").strip()
+    selected_category = (request.args.get("category") or "").strip()
+
+    # 2. Pasing
+    start_date = parse_date_or_none(start_str)
+    end_date = parse_date_or_none(end_str)
+
+    if start_date and end_date and end_date < start_date:
+        flash("Ngày kết thúc phải sau ngày bắt đầu.", "error")
+        start_date = None
+        start_str = ""
+
+    q = Expenses.query
+    
+    if start_date:
+        q = q.filter(Expenses.date >= start_date)
+    if end_date:
+        q = q.filter(Expenses.date <= end_date)
+
+    if selected_category:
+        q = q.filter(Expenses.category == selected_category)
+
+    # Get all expenses and total amount
+    expenses = q.order_by(Expenses.date.desc(), Expenses.id.desc()).all()
 
     total = round(sum(e.amount for e in expenses), 2)
 
     return render_template(
         "index.html", 
         expenses=expenses,
-        categories=CATEGORY_LABELS,
-        total=total
+        total=total,
+        start_str=start_str,
+        end_str=end_str,
+        today=date.today().strftime("%Y-%m-%d"),
+        selected_category=selected_category
     )
+
 
 
 @app.route("/add", methods=['POST'])
