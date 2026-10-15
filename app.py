@@ -3,6 +3,8 @@ from flask_sqlalchemy import SQLAlchemy
 
 from datetime import date, datetime
 
+from sqlalchemy import func
+
 app = Flask(__name__)
 
 # Create database
@@ -84,6 +86,35 @@ def index():
 
     total = round(sum(e.amount for e in expenses), 2)
 
+    # Pie Chart
+    cat_q = db.session.query(Expenses.category, func.sum(Expenses.amount))
+
+    if start_date:
+        cat_q = cat_q.filter(Expenses.date >= start_date)
+    if end_date:
+        cat_q = cat_q.filter(Expenses.date <= end_date)
+    if selected_category:
+        cat_q = cat_q.filter(Expenses.category == selected_category)
+
+    cat_row = cat_q.group_by(Expenses.category).all()
+    cat_labels = [CATEGORY_LABELS.get(c, c) for c, _ in cat_row]
+    cat_values = [round(float(s or 0), 2) for _, s in cat_row]
+
+    # Day Chart
+    day_q = db.session.query(Expenses.date, func.sum(Expenses.amount))
+
+    if start_date:
+        day_q = day_q.filter(Expenses.date >= start_date)
+    if end_date:
+        day_q = day_q.filter(Expenses.date <= end_date)
+    if selected_category:
+        day_q = day_q.filter(Expenses.category == selected_category)
+
+    day_row = day_q.group_by(Expenses.date).order_by(Expenses.date).all()
+    day_labels = [d.strftime("%Y-%m-%d") for d, _ in day_row]
+    day_values = [round(float(s or 0), 2) for _, s in day_row]
+    
+
     return render_template(
         "index.html", 
         expenses=expenses,
@@ -91,7 +122,11 @@ def index():
         start_str=start_str,
         end_str=end_str,
         today=date.today().strftime("%Y-%m-%d"),
-        selected_category=selected_category
+        selected_category=selected_category,
+        cat_labels=cat_labels,
+        cat_values=cat_values,
+        day_labels=day_labels,
+        day_values=day_values
     )
 
 
