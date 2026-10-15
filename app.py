@@ -17,12 +17,12 @@ CATEGORY_LABELS = {
     "Transport": "Di chuyển",
     "Rent": "Tiền nhà",
     "Utilities": "Điện nước",
+    "Health": "Sức khỏe",
 }
 
 
 @app.context_processor
 def inject_category_labels():
-    # Biến này dùng được trong mọi template
     return {"category_labels": CATEGORY_LABELS}
 
 
@@ -37,20 +37,31 @@ class Expenses(db.Model):
 with app.app_context():
     db.create_all()
 
+@app.template_filter("vnd")
+def vnd(value):
+    return f"{value or 0:,.0f}".replace(",", ".")
+
 
 # Return home page
 @app.get("/")
 def index():
     expenses = Expenses.query.order_by(Expenses.date.desc(), Expenses.id.desc()).all()
 
-    return render_template("index.html", expenses=expenses)
+    total = round(sum(e.amount for e in expenses), 2)
+
+    return render_template(
+        "index.html", 
+        expenses=expenses,
+        categories=CATEGORY_LABELS,
+        total=total
+    )
 
 
 @app.route("/add", methods=['POST'])
 def add():
     # Get Data
     description = (request.form.get("description") or "").strip()
-    amount_str = (request.form.get("amount") or "").strip()
+    amount_str = (request.form.get("amount") or "").strip().replace(".", "")
     category = (request.form.get("category") or "").strip()
     date_str = (request.form.get("date") or "").strip()
 

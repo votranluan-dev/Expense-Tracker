@@ -68,7 +68,7 @@
       <span
         class="inline-block rounded-xl border border-slate-700 bg-slate-800 px-3 py-1 font-semibold"
       >
-        0.000 VND
+        {{ total | vnd }} VND
       </span>
     </div>
 
@@ -97,11 +97,11 @@
           <span class="mb-1 block text-slate-300">Số tiền</span>
           <input
             name="amount"
-            type="number"
-            step="1000"
-            min="1000"
-            placeholder="25000"
-            class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
+            type="text"
+            inputmode="numeric"
+            autocomplete="off"
+            placeholder="25.000"
+            class="money-input w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
           />
         </label>
         <label class="block text-sm">
@@ -140,7 +140,7 @@
   <span
     class="inline-block rounded-xl border border-slate-700 bg-slate-800 px-3 py-1 font-semibold"
   >
-    0.000 VND
+    {{ total | vnd }} VND
   </span>
 </div>
 
@@ -167,7 +167,7 @@
             <td class="px-4 py-2">{{ e.date.strftime("%Y - %m - %d") if e.date else '' }}</td>
             <td class="px-4 py-2">{{ e.description }}</td>
             <td class="px-4 py-2">{{ category_labels.get(e.category, e.category) }}</td>
-            <td class="px-4 py-2 text-right">{{ "%.0f" | format(e.amount) }} VND</td>
+            <td class="px-4 py-2 text-right">{{ e.amount | vnd }} VND</td>
             <td class="px-4 py-2 text-right">
               <button
                 class="text-rose-300 hover:text-rose-200 text-xs border border-rose-400/30 px-3 py-1 rounded-lg"
@@ -200,4 +200,15 @@
     <canvas id="dayChart" height="140"></canvas>
   </div>
 </section>
+{% endblock %}
+
+{% block body_end %}
+<script>
+  document.querySelectorAll(".money-input").forEach((input) => {
+    input.addEventListener("input", () => {
+      const digits = input.value.replace(/\D/g, "");
+      input.value = digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    });
+  });
+</script>
 {% endblock %}

@@ -25,12 +25,12 @@
       <label class="block text-sm">
         <span class="mb-1 block text-slate-300">Số tiền</span>
         <input
-          type="number"
-          step="1000"
-          min="1000"
           name="amount"
-          value="{{ '%.0f'|format(expense.amount) }}"
-          class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
+          type="text"
+          inputmode="numeric"
+          autocomplete="off"
+          value="{{ expense.amount | vnd }}"
+          class="money-input w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
         />
       </label>
       <label class="block text-sm">
@@ -74,4 +74,15 @@
     </div>
   </form>
 </section>
+{% endblock %}
+
+{% block body_end %}
+<script>
+  document.querySelectorAll(".money-input").forEach((input) => {
+    input.addEventListener("input", () => {
+      const digits = input.value.replace(/\D/g, "");
+      input.value = digits.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    });
+  });
+</script>
 {% endblock %}
