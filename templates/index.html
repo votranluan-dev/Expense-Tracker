@@ -169,11 +169,18 @@
             <td class="px-4 py-2">{{ category_labels.get(e.category, e.category) }}</td>
             <td class="px-4 py-2 text-right">{{ e.amount | vnd }} VND</td>
             <td class="px-4 py-2 text-right">
-              <button
-                class="text-rose-300 hover:text-rose-200 text-xs border border-rose-400/30 px-3 py-1 rounded-lg"
-              >
-                Xóa
-              </button>
+
+              <form 
+                method="post" 
+                action="{{ url_for('delete', id=e.id) }}" class="flex gap-2 justify-end"
+                onsubmit="return confirm('Bạn có chắc chắn muốn xóa khoản chi này?');"
+                ">
+                <button
+                  class="text-rose-300 hover:text-rose-200 text-xs border border-rose-400/30 px-3 py-1 rounded-lg"
+                >
+                  Xóa
+                </button>
+              </form>
             </td>
           </tr>
           {% endfor %}

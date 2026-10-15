@@ -98,5 +98,18 @@ def add():
     return redirect(url_for("index"))
 
 
+@app.route("/delete/<int:id>", methods=['POST'])
+def delete(id):
+    e = Expenses.query.get_or_404(id)
+
+    db.session.delete(e)
+    db.session.commit()
+
+    flash("Đã xóa khoản chi.", "success")
+
+    return redirect(url_for("index"))
+
+
+
 if __name__ == "__main__":
     app.run(debug=True)
