@@ -1,7 +1,7 @@
 from flask import Flask, Response, render_template, request, url_for, flash, redirect
 from flask_sqlalchemy import SQLAlchemy
 
-from datetime import date, datetime
+from datetime import date, datetime, date as dt_date
 
 from sqlalchemy import func
 
@@ -222,9 +222,52 @@ def export_csv():
         mimetype="text/csv",
         headers={
             "Content-Disposition": f"attachment; filename={filename}",
-            "COntent-Type": "text/csv; charset=utf-8"
+            "Content-Type": "text/csv; charset=utf-8"
         }
     )
+
+
+@app.route("/edit/<int:id>", methods=["GET", "POST"])
+def edit(id):
+    e = Expenses.query.get_or_404(id)
+
+    if request.method == "POST":
+        description = (request.form.get("description") or "").strip()
+        amount_str = (request.form.get("amount") or "").strip().replace(".", "")
+        category = (request.form.get("category") or "").strip()
+        date_str = (request.form.get("date") or "").strip()
+
+        if not description or not amount_str or not category:
+            flash("Vui lòng điền thông tin mô tả, số tiền và danh mục.", "error")
+            return redirect(url_for("edit", id=id))
+
+        if category not in CATEGORY_LABELS:
+            flash("Danh mục không hợp lệ.", "error")
+            return redirect(url_for("edit", id=id))
+
+        try:
+            amount = float(amount_str)
+            if amount <= 0:
+                raise ValueError
+        except ValueError:
+            flash("Số tiền phải là số dương.", "error")
+            return redirect(url_for("edit", id=id))
+
+        try:
+            d = datetime.strptime(date_str, "%Y-%m-%d").date() if date_str else date.today()
+        except ValueError:
+            d = date.today()
+
+        e.description = description
+        e.amount = amount
+        e.category = category
+        e.date = d
+
+        db.session.commit()
+        flash("Đã cập nhật khoản chi.", "success")
+        return redirect(url_for("index"))
+
+    return render_template("edit.html", expense=e, today=date.today().isoformat())
 
 
 if __name__ == "__main__":
