@@ -1,7 +1,12 @@
-{% extends "base.html" %} {% block title %}Tổng quan · Quản lý chi tiêu{%
-endblock %} {% block head_extra %}
+{% extends "base.html" %}
+
+{% block title %}Tổng quan · Quản lý chi tiêu{% endblock %}
+
+{% block head_extra %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-{% endblock %} {% block content %}
+{% endblock %}
+
+{% block content %}
 <h1 class="text-3xl font-semibold mb-2">Tổng quan</h1>
 <p class="text-slate-400 mb-6">
   Theo dõi chi tiêu, lọc theo ngày/danh mục và xem biểu đồ ngay lập tức.
@@ -37,9 +42,9 @@ endblock %} {% block head_extra %}
           class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
         >
           <option value="">Tất cả</option>
-          <option value="Food">Ăn uống</option>
-          <option value="Transport">Di chuyển</option>
-          <option value="Utilities">Điện nước</option>
+          {% for key, label in category_labels.items() %}
+          <option value="{{ key }}">{{ label }}</option>
+          {% endfor %}
         </select>
       </label>
       <div class="flex gap-2">
@@ -114,10 +119,9 @@ endblock %} {% block head_extra %}
           name="category"
           class="w-full rounded-xl bg-slate-800 border border-slate-700 px-3 py-2 text-slate-100"
         >
-          <option value="Food">Ăn uống</option>
-          <option value="Transport">Di chuyển</option>
-          <option value="Rent">Tiền nhà</option>
-          <option value="Utilities">Điện nước</option>
+          {% for key, label in category_labels.items() %}
+          <option value="{{ key }}">{{ label }}</option>
+          {% endfor %}
         </select>
       </label>
       <button
@@ -157,24 +161,29 @@ endblock %} {% block head_extra %}
         </tr>
       </thead>
       <tbody>
-        <tr class="border-t border-slate-800 hover:bg-slate-800/30">
-          <td class="px-4 py-2">2025-09-25</td>
-          <td class="px-4 py-2">Đi chợ</td>
-          <td class="px-4 py-2">Ăn uống</td>
-          <td class="px-4 py-2 text-right">25.000 VND</td>
-          <td class="px-4 py-2 text-right">
-            <button
-              class="text-rose-300 hover:text-rose-200 text-xs border border-rose-400/30 px-3 py-1 rounded-lg"
-            >
-              Xóa
-            </button>
-          </td>
-        </tr>
+        {% if expenses %}
+          {% for e in expenses %}
+          <tr class="border-t border-slate-800 hover:bg-slate-800/30">
+            <td class="px-4 py-2">{{ e.date.strftime("%Y - %m - %d") if e.date else '' }}</td>
+            <td class="px-4 py-2">{{ e.description }}</td>
+            <td class="px-4 py-2">{{ category_labels.get(e.category, e.category) }}</td>
+            <td class="px-4 py-2 text-right">{{ "%.0f" | format(e.amount) }} VND</td>
+            <td class="px-4 py-2 text-right">
+              <button
+                class="text-rose-300 hover:text-rose-200 text-xs border border-rose-400/30 px-3 py-1 rounded-lg"
+              >
+                Xóa
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
         <tr>
           <td colspan="5" class="px-4 py-6 text-center text-slate-400">
             Chưa có khoản chi nào — hãy thêm khoản đầu tiên ở phía trên.
           </td>
         </tr>
+        {% endif %}
       </tbody>
     </table>
   </div>
